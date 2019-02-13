@@ -1,18 +1,31 @@
 #!/usr/bin/python
 import matplotlib.pyplot as plt
-import folium
+import numpy as np
 
-from folium.plugins import FastMarkerCluster
+# Draw a simple map with matplotlib.
+def draw_cluster_map(df):
+    fig = plt.figure()
+    plt.scatter(df.latitude, df.longitude, marker='.', c=df.cluster_id)
+    return fig
 
 
 # Draw a simple map with matplotlib.
-def draw_cluster_map(data):
-    ax = plt.scatter(data.latitude, data.longitude, c=data.cluster_id)
-    plt.show()
+def draw_pointed_cluster_map(df, attribute='review_count'):
+    fig = plt.figure()
+    print('mean:', np.mean(df[attribute]))
+    s = list(df[attribute]/(np.mean(df[attribute])))
+    plt.scatter(df.latitude, df.longitude, marker='.', s=s, c=df.cluster_id)
+    return fig
 
 
-# Draw an fast enriched clusterized map using the folium library withouth pop-ups.
-def draw_fast_cluster_map(data):
-    m = folium.Map(location=[data['latitude'].mean(), data['longitude'].mean()], zoom_start=4)
-    m.add_child(FastMarkerCluster(data=data[['latitude', 'longitude']].values.tolist()))
-    m.save(outfile='map.html')
+# Saves the map into a dir.
+def save_map(fig, file_name):
+    fig.savefig(file_name, format='eps')
+    plt.close(fig)
+
+
+# Plots the map.
+def plot_map(fig):
+    plt.show(fig)
+
+
