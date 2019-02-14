@@ -10,9 +10,8 @@ def draw_cluster_map(df):
 
 
 # Draw a simple map with matplotlib.
-def draw_pointed_cluster_map(df, attribute='review_count'):
+def draw_pointed_cluster_map(df, attribute='checkins'):
     fig = plt.figure()
-    print('mean:', np.mean(df[attribute]))
     s = list(df[attribute]/(np.mean(df[attribute])))
     plt.scatter(df.latitude, df.longitude, marker='.', s=s, c=df.cluster_id)
     return fig

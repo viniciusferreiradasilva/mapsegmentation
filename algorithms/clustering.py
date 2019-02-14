@@ -5,11 +5,10 @@ from sklearn.cluster import AgglomerativeClustering
 from utils.utils import distance_in_kilometers
 NOT_IN_A_CLUSTER = -1
 
-# CLUSTERING ALGORITHMS #
 
 # Clustering by ordering the entries by an attribute and using it as a landmark venue. Putting all the venues with
 # a distance (latitude and longitude) <= threshold in the same cluster of the landmark venue.
-def highest_attribute_value(df, attribute, threshold):
+def highest_attribute_value(df, attribute='checkins', threshold=5):
     # Sorting the values of the dataframe by attribute in the descending order.
     df = df.sort_values(attribute, ascending=False)
     # Creating a new column 'cluster_id' that represents the cluster index of that venue,
@@ -33,7 +32,7 @@ def highest_attribute_value(df, attribute, threshold):
 
 
 # Clustering the data by k-means algorithms using latitude and longitude as features.
-def kmeans(df, n_clusters=10):
+def kmeans(df, n_clusters=100):
     mat = df[['latitude', 'longitude']].values
     km = KMeans(n_clusters=n_clusters).fit(mat)
     df['cluster_id'] = km.labels_
@@ -49,7 +48,7 @@ def dbscan(df, eps=0.001, min_samples=3):
 
 
 # Clustering the data by the aglomerative clustering (a hierarchical clustering) algorithm .
-def agglomerative_clustering(df, n_clusters=2):
+def agglomerative_clustering(df, n_clusters=100):
     mat = df[['latitude', 'longitude']].values
     ag = AgglomerativeClustering(n_clusters=n_clusters).fit(mat)
     df['cluster_id'] = ag.labels_
