@@ -1,9 +1,29 @@
 import igraph
-from utils.utils import distance_in_kilometers
+
+"""
+File containing functions to build networks. Those functions are interfaces to the python igraph library.
+"""
 
 
-# Creates a network using igraph library.
 def create_network(n_vertices, id_attribute=None, attributes=None):
+    """Creates a network adding vertices and vertices attributes.
+
+    Parameters
+    ----------
+
+    n_vertices: int
+    Number of vertices that will be added to the network.
+
+    id_attribute: str
+    Name of the node attribute that will be added to the network.
+
+    attributes:
+    List of attributes that will be added to the vertex list. The size of the list must be equal to the n_vertices.
+
+    Returns
+    -------
+    g: a python igraph network object.
+    """
     g = igraph.Graph()
     g.add_vertices(n_vertices)
     # Assigns the vertices id attributes to the vertices of the network.
@@ -12,36 +32,41 @@ def create_network(n_vertices, id_attribute=None, attributes=None):
     return g
 
 
-# Adds the edge list to the network.
 def add_edges(g, edge_list):
+    """Add edges to the network g.
+
+    Parameters
+    ----------
+
+    g : a python igraph network object.
+
+    edge_list: a list of edges for adding to the network. A edge between v and u has the format of a tuple (u, v).
+
+    Returns
+    -------
+    g: a network with the edges of edge_list.
+    """
     g.add_edges(edge_list)
     return g
 
 
-# Adds weighted edges to the edge list of the network.
 def add_weighted_edges(g, edge_list, edges_weights):
+    """Add weighted edges to the network g.
+
+    Parameters
+    ----------
+
+    g : a python igraph network object.
+
+    edge_list: a list of edges for adding to the network. A edge between v and u has the format of a tuple (u, v).
+
+    edge_list: a list of double values representing the edges weights. A edge between v and u has the
+    format of a tuple (u, v).
+
+    Returns
+    -------
+    g: a network with the edges of edge_list.
+    """
     g.add_edges(edge_list)
     g.es['weight'] = edges_weights
     return g
-
-
-# Generates a local-local network from a pandas dataframe.
-def convert_dataframe_to_local_local_network(df, id_attribute, latitude_attribute, longitude_attribute,
-                                             threshold_distance_in_km):
-    # Creates the network.
-    attributes = list(df[id_attribute])
-    local_local_network = create_network(len(df.index), id_attribute, attributes)
-    latitudes = list(df[latitude_attribute])
-    longitudes = list(df[longitude_attribute])
-    edge_list = []
-    edges_weights = []
-    for v in range(local_local_network.vcount()):
-        # node_position = (latitudes[v], longitudes[v])
-        for u in range((v + 1), local_local_network.vcount()):
-            distance = distance_in_kilometers(latitudes[v], longitudes[v], latitudes[u], longitudes[u])
-            if distance <= threshold_distance_in_km:
-                edge_list.append((v, u))
-                edges_weights.append(distance)
-    local_local_network.add_edges(edge_list)
-    local_local_network.es['weight'] = edges_weights
-    return local_local_network

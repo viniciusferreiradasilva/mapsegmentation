@@ -2,29 +2,83 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Draw a simple map with matplotlib.
+"""
+File containing functions to plotting cluster maps according to the color of each cluster.
+"""
+
+
 def draw_cluster_map(df):
+    """Draws a cluster map.
+
+    Parameters
+    ----------
+
+    df : A pandas dataframe containing the latitude, longitude and cluster id data that will be clusterized.
+    The columns of the dataframe must have the names 'latitude', 'longitude' and 'cluster_id'.
+
+    Returns
+    -------
+    fig: a figure object of the matplotlib module.
+    """
     fig = plt.figure()
     plt.scatter(df.latitude, df.longitude, marker='.', c=df.cluster_id)
     return fig
 
 
-# Draw a simple map with matplotlib.
 def draw_pointed_cluster_map(df, attribute='checkins'):
+    """Draws a cluster map highlighting important points. The important point are calculated according to the attribute
+    value.
+
+    Parameters
+    ----------
+
+    df : A pandas dataframe containing the latitude, longitude and cluster id data that will be clusterized.
+    The columns of the dataframe must have the names 'latitude', 'longitude' and 'cluster_id'.
+
+    attribute: str
+    The attribute column name in the pandas dataframe that will be used to highlight points on the map. Rows with higher
+    values of attribute are more highlighted.
+
+    Returns
+    -------
+    fig: a figure object of the matplotlib module.
+    """
     fig = plt.figure()
     s = list(df[attribute]/(np.mean(df[attribute])))
     plt.scatter(df.latitude, df.longitude, marker='.', s=s, c=df.cluster_id)
     return fig
 
 
-# Saves the map into a dir.
 def save_map(fig, file_name):
+    """Saves the map as a image file.
+
+    Parameters
+    ----------
+
+    fig : figure object to matplotlib module;
+
+    filename : str.
+    representing file path where the map will me saved.
+
+    Returns
+    -------
+    None.
+    """
     fig.savefig(file_name, format='eps')
     plt.close(fig)
 
 
-# Plots the map.
 def plot_map(fig):
+    """Plots the map on the screen.
+
+    Parameters
+    ----------
+   fig : figure object to matplotlib module;
+
+    Returns
+    -------
+    None
+    """
     plt.show(fig)
 
 
