@@ -10,9 +10,11 @@ from algorithms.clustering import highest_attribute_value
 from algorithms.clustering import kmeans
 from algorithms.clustering import dbscan
 from algorithms.clustering import agglomerative_clustering
-from mapdrawing.map_drawing import draw_pointed_cluster_map
-from mapdrawing.map_drawing import save_map
-from mapdrawing.map_drawing import plot_map
+from analysis.map_drawing import draw_pointed_cluster_map
+from analysis.map_drawing import save_map
+from analysis.map_drawing import plot_map
+from analysis.metrics import silhouette_coefficient
+from analysis.metrics import silhouette_sample
 from collections import Counter
 
 # Instantiate the parser
@@ -23,9 +25,8 @@ parser.add_argument('--input_file', required=True, type=str,
                     help='A string representing a .json input file path with latitude and longitude columns.')
 
 # Optional output_file dir argument.
-parser.add_argument('--output_dir', type=str,
-                    help='A string representing an output dir path to save the clustering map and the resulting '
-                                                   'network .ncol file.')
+parser.add_argument('--output_dir', type=str, help='A string representing an output dir path to save the clustering map'
+                                                   'and the resulting network .ncol file.')
 
 # Required clustering algorithm argument.
 parser.add_argument('--clustering_algorithm', type=int, required=True,
@@ -70,7 +71,7 @@ for index, row in districts.iterrows():
 
 
 # Retrieve the list of nodes used to build the network. The vertices are the union between districts and categories ids.
-vertices_list = vertices_list = list(districts['cluster_id']) + list(categories.values())
+vertices_list = list(districts['cluster_id']) + list(categories.values())
 # Retrieve the list of edges used to build the network. The edges are tuples of districts and categories ids.
 edge_list = [(x, y) for x in list(districts['cluster_id']) for y in districts_categories_count[x]]
 # Retrieve the list of edge weights to build the network.
@@ -78,6 +79,9 @@ weights = list(itertools.chain.from_iterable([list(x.values()) for x in district
 # Creates the network.
 g = create_network(len(vertices_list))
 g = add_weighted_edges(g, edge_list, weights)
+
+print("silhouette coefficient:", silhouette_coefficient(df))
+print("silhouette samples len:", len(silhouette_sample(df)))
 
 print("drawing map...")
 fig = draw_pointed_cluster_map(df)

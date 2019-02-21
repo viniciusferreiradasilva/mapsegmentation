@@ -1,9 +1,6 @@
-import numpy as np
-
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
-
 from utils.utils import distance_in_kilometers
 NOT_IN_A_CLUSTER = -1
 

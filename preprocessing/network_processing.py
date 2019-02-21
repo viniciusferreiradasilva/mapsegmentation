@@ -60,7 +60,7 @@ def add_weighted_edges(g, edge_list, edges_weights):
 
     edge_list: a list of edges for adding to the network. A edge between v and u has the format of a tuple (u, v).
 
-    edge_list: a list of double values representing the edges weights. A edge between v and u has the
+    edges_weights: a list of double values representing the edges weights. A edge between v and u has the
     format of a tuple (u, v).
 
     Returns

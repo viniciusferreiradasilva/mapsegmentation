@@ -57,7 +57,7 @@ def save_map(fig, file_name):
 
     fig : figure object to matplotlib module;
 
-    filename : str.
+    file_name : str.
     representing file path where the map will me saved.
 
     Returns

@@ -64,13 +64,14 @@ def load_attribute(df, filename, id_attribute, attribute, default_value=0):
 
     attribute: str representing the json attribute name that will compose the new column in the dataframe.
 
+    default_value: default value of the attribute.
     Returns
     -------
     df: pandas dataframe with the new column.
     """
     # Loads the file that contains the attribute.
     df_attribute = pd.read_json(path_or_buf=filename)
-    # Iterates over the ids present in both dataframes. This code also set the null cells to a default value.
+    # Iterates over the ids present in both dataframe. This code also set the null cells to a default value.
     return df.reset_index().merge(df_attribute[[id_attribute, attribute]], left_index=True, left_on=id_attribute,
                     right_on=id_attribute, how='left').fillna({attribute: default_value}).set_index('index')
 
