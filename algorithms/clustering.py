@@ -91,7 +91,6 @@ def dbscan(df, eps=0.001, min_samples=3):
     -------
     df : a pandas dataframe with the column 'cluster_id' that identifies the cluster of each row of the dataframe.
     """
-
     mat = df[['latitude', 'longitude']].values
     db = DBSCAN(eps=float(eps), min_samples=int(min_samples), metric='euclidean').fit(mat)
     df['cluster_id'] = db.labels_
