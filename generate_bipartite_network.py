@@ -10,6 +10,7 @@ from algorithms.clustering import highest_attribute_value
 from algorithms.clustering import kmeans
 from algorithms.clustering import dbscan
 from algorithms.clustering import agglomerative_clustering
+from algorithms.embedding import embedding_by_category_probability
 from analysis.map_drawing import draw_pointed_cluster_map
 from analysis.map_drawing import save_map
 from analysis.map_drawing import plot_map
@@ -80,8 +81,6 @@ weights = list(itertools.chain.from_iterable([list(x.values()) for x in district
 g = create_network(len(vertices_list))
 g = add_weighted_edges(g, edge_list, weights)
 
-print("silhouette coefficient:", silhouette_coefficient(df))
-print("silhouette samples len:", len(silhouette_sample(df)))
 
 print("drawing map...")
 fig = draw_pointed_cluster_map(df)
@@ -100,3 +99,13 @@ if args.output_dir:
 else:
     plot_map(fig)
 print('-' * 10)
+
+print("generating embedding...")
+districts_embedding = embedding_by_category_probability(categories, districts_categories_count)
+embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
+        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '_embedding.txt'
+# Writing the embedding into a file.
+with open(embedding_file, 'w') as f:
+    for district_embedding in districts_embedding:
+        f.write(' '.join(["{0:.10f}".format(x) for x in list(district_embedding.values())]) + "\n")
+f.close()
