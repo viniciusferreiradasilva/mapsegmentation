@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import numpy as np
 import itertools
 
 from preprocessing.file_loading import json_2_dataframe
@@ -70,6 +71,8 @@ for index, row in districts.iterrows():
     counter = Counter(row[0].replace(' ', '').split(','))
     districts_categories_count[row[1]] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
 
+print("number of districts:", len(districts))
+print("number of categories:", len(categories))
 
 # Retrieve the list of nodes used to build the network. The vertices are the union between districts and categories ids.
 vertices_list = list(districts['cluster_id']) + list(categories.values())
@@ -98,14 +101,25 @@ if args.output_dir:
     g.write_ncol(f=network_output_file, names='', weights='weight')
 else:
     plot_map(fig)
-print('-' * 10)
 
-print("generating embedding...")
+print("generating embedding from districts...")
 districts_embedding = embedding_by_category_probability(categories, districts_categories_count)
 embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
-        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '_embedding.txt'
+        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '_district_emb.txt'
 # Writing the embedding into a file.
 with open(embedding_file, 'w') as f:
     for district_embedding in districts_embedding:
-        f.write(' '.join(["{0:.10f}".format(x) for x in list(district_embedding.values())]) + "\n")
+        f.write(' '.join(["{0:.10f}".format(x) for x in list(district_embedding)]) + "\n")
 f.close()
+
+print("generating embedding from categories...")
+districts_embedding = np.transpose(embedding_by_category_probability(categories, districts_categories_count))
+embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
+        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '_categories_emb.txt'
+# Writing the embedding into a file.
+with open(embedding_file, 'w') as f:
+    for district_embedding in districts_embedding:
+        f.write(' '.join(["{0:.10f}".format(x) for x in list(district_embedding)]) + "\n")
+f.close()
+
+print('-' * 10)

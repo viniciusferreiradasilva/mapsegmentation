@@ -18,17 +18,18 @@ def embedding_by_category_probability(categories, districts_categories_count):
 
     Returns
     -------
-    districts_categories_embedding: a python list where each object is a dict representing a district. The keys of the
-    dict represent the categories ids and the values represent the probability of such category exist in the district.
+    districts_categories_embedding: a numpy matrix representing the embeddings where each line is a district.
     """
-    districts_categories_embedding = [None] * len(districts_categories_count)
+    districts_categories_embedding = np.empty((len(districts_categories_count), len(categories)))
+
     for district_id, district in enumerate(districts_categories_count):
         # Calculates the value of embedding for every present category.
         embedding_values = np.divide(list(district.values()), np.sum(list(district.values())))
         # Merges an empty district embedding to the existent district embedding to give zero value to non-present
         # categories.
-        district_embedding = {**dict(zip(categories.values(), np.zeros(len(categories)))),
-                              **dict(zip(district.keys(), embedding_values))}
+        district_embedding = np.asarray(list({**dict(zip(categories.values(), np.zeros(len(categories)))),
+                                              **dict(zip(district.keys(), embedding_values))}.values()))
         # Add the district embedding to the embedding dictionary.
         districts_categories_embedding[district_id] = district_embedding
+
     return districts_categories_embedding
