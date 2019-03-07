@@ -51,7 +51,7 @@ def highest_attribute_value(df, attribute_name='checkins', threshold=5):
     return df
 
 
-def kmeans(df, n_clusters=50):
+def kmeans(df, n_clusters=100):
     """Interface to kmeans sci-kit learn algorithm
 
     Parameters
@@ -72,7 +72,7 @@ def kmeans(df, n_clusters=50):
     return df
 
 
-def dbscan(df, eps=0.001, min_samples=5):
+def dbscan(df, eps=0.001, min_samples=3):
     """Interface to dbscan sci-kit learn algorithm
 
     Parameters
@@ -97,7 +97,7 @@ def dbscan(df, eps=0.001, min_samples=5):
     return df
 
 
-def agglomerative_clustering(df, n_clusters=50):
+def agglomerative_clustering(df, n_clusters=100):
     """Interface to agglomerative clustering (bottom-up hierarchical clustering) sci-kit learn algorithm
 
     Parameters

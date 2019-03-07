@@ -27,8 +27,9 @@ parser.add_argument('--input_file', required=True, type=str,
                     help='A string representing a .json input file path with latitude and longitude columns.')
 
 # Optional output_file dir argument.
-parser.add_argument('--output_dir', type=str, help='A string representing an output dir path to save the clustering map'
-                                                   'and the resulting network .ncol file.')
+parser.add_argument('--output_dir', type=str, help="A string representing an output dir path to save the clustering"
+                                                   " map, the resulting network .ncol file and the resulting embeddings"
+                    , required=True)
 
 # Required clustering algorithm argument.
 parser.add_argument('--clustering_algorithm', type=int, required=True,
@@ -71,9 +72,6 @@ for index, row in districts.iterrows():
     counter = Counter(row['categories'].replace(' ', '').split(','))
     districts_categories_count[row['cluster_id']] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
 
-print("number of districts:", len(districts))
-print("number of categories:", len(categories))
-
 # Retrieve the list of nodes used to build the network. The vertices are the union between districts and categories ids.
 vertices_list = list(districts['cluster_id']) + list(categories.values())
 # Retrieve the list of edges used to build the network. The edges are tuples of districts and categories ids.
@@ -84,38 +82,38 @@ weights = list(itertools.chain.from_iterable([list(x.values()) for x in district
 g = create_network(len(vertices_list))
 g = add_weighted_edges(g, edge_list, weights)
 
+number_of_districts = len(districts)
+number_of_categories = len(categories)
 
-print("drawing map...")
 fig = draw_pointed_cluster_map(df)
-# If an output dir is passed, the resulting map is saved into this dir.
-if args.output_dir:
-    # Saving the map on the dir.
-    map_output_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' +\
-                      clustering_algorithms[args.clustering_algorithm].__name__ + '.eps'
-    print("saving map into:", map_output_file)
-    save_map(fig, map_output_file)
-    # Saving the network as .ncol on the dir.
-    network_output_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
-        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '.ncol'
-    print("saving network district - category into:", network_output_file)
-    g.write_ncol(f=network_output_file, names='', weights='weight')
-else:
-    plot_map(fig)
+# Saving the map on the dir.
+map_output_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' +\
+                  clustering_algorithms[args.clustering_algorithm].__name__ + '.eps'
+print("saving map into:", map_output_file)
+save_map(fig, map_output_file)
 
-print("generating embedding from districts...")
+# Saving the network as .ncol on the dir.
+network_output_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
+    args.clustering_algorithm].__name__ + '_' + str(number_of_districts) + '_' + str(number_of_categories) + '.ncol'
+print("saving network district - category into:", network_output_file)
+g.write_ncol(f=network_output_file, names='', weights='weight')
+
 districts_embedding = embedding_by_category_probability(categories, districts_categories_count)
 embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
-        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '_district_emb.txt'
+        args.clustering_algorithm].__name__ + '_' + str(number_of_districts) + '_' + str(number_of_categories) +\
+                 '_district_emb.txt'
+print("saving embedding from districts into:", embedding_file)
 # Writing the embedding into a file.
 with open(embedding_file, 'w') as f:
     for district_embedding in districts_embedding:
         f.write(' '.join(["{0:.10f}".format(x) for x in list(district_embedding)]) + "\n")
 f.close()
 
-print("generating embedding from categories...")
 districts_embedding = np.transpose(embedding_by_category_probability(categories, districts_categories_count))
 embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
-        args.clustering_algorithm].__name__ + '_' + str(g.vcount()) + '_' + str(g.ecount()) + '_categories_emb.txt'
+        args.clustering_algorithm].__name__ + '_' + str(number_of_districts) + '_' + str(number_of_categories) +\
+                 '_categories_emb.txt'
+print("saving embedding from categories into:", embedding_file)
 # Writing the embedding into a file.
 with open(embedding_file, 'w') as f:
     for district_embedding in districts_embedding:

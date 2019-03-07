@@ -2,8 +2,14 @@
   <dictionary name="vfsilva">
     <words>
       <w>agglomerative</w>
+      <w>checkins</w>
+      <w>clusterized</w>
       <w>dataframe</w>
       <w>dbscan</w>
+      <w>euclidian</w>
+      <w>igraph</w>
+      <w>kmeans</w>
+      <w>matplotlib</w>
     </words>
   </dictionary>
 </component>
