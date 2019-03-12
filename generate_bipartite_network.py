@@ -14,9 +14,6 @@ from algorithms.clustering import agglomerative_clustering
 from algorithms.embedding import embedding_by_category_probability
 from analysis.map_drawing import draw_pointed_cluster_map
 from analysis.map_drawing import save_map
-from analysis.map_drawing import plot_map
-from analysis.metrics import silhouette_coefficient
-from analysis.metrics import silhouette_sample
 from collections import Counter
 
 # Instantiate the parser
@@ -40,10 +37,10 @@ parser.add_argument('--clustering_algorithm', type=int, required=True,
                          '4 - Agglomerative clustering. Args: n_clusters (int)\n')
 
 # Required clustering algorithm argument.
-parser.add_argument('--args', required=False, action='append', default=[],
+parser.add_argument('--args', required=False, nargs='+', default=[],
                     help='List of arguments that will be passed to the clustering algorithm. Each clustering algorithm '
                          'has a certain number of parameters. You should pass them in the same order:\n'
-                         '--args ARG_1 --args ARG_2 ... --args ARG_N.')
+                         '--args ARG_1 ARG_2 ... ARG_N.')
 
 args = parser.parse_args()
 # Loading a json file for a pandas dataframe.

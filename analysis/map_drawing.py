@@ -1,5 +1,8 @@
 #!/usr/bin/python
+from collections import Counter
+
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 
 """
@@ -45,7 +48,16 @@ def draw_pointed_cluster_map(df, attribute='checkins'):
     """
     fig = plt.figure()
     s = list(df[attribute]/(np.mean(df[attribute])))
-    plt.scatter(df.latitude, df.longitude, marker='.', s=s, c=df.cluster_id)
+    # 2nd Plot showing the actual clusters formed
+    X = df[['latitude', 'longitude']].values
+    cluster_labels = np.array(df['cluster_id']).astype(float)
+    n_clusters = len(Counter(cluster_labels).keys())
+    colors = cm.nipy_spectral(cluster_labels / n_clusters)
+    # plt.scatter(df.latitude, df.longitude, marker='.', s=s, c=df.cluster_id)
+    plt.scatter(X[:, 0], X[:, 1], marker='.', s=30, lw=0, alpha=0.7,
+                c=colors, edgecolor='k')
+    plt.xlabel('Latitude')
+    plt.ylabel('Longitude')
     return fig
 
 
