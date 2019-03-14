@@ -1,5 +1,5 @@
-
 from math import sin, cos, sqrt, atan2, radians
+import argparse
 
 
 # Calculates the distance between node and neighbor in km using latitude and longitude.
@@ -15,3 +15,12 @@ def distance_in_kilometers(latitude_from, longitude_from, latitude_to, longitude
     a = sin(dlat / 2) ** 2 + cos(latitude_from) * cos(latitude_to) * sin(dlon / 2) ** 2
     return R * (2 * atan2(sqrt(a), sqrt(1 - a)))
 
+
+# Converts a str input to boolean.
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'verdadeiro', 'v', 'y', '1', 'sim', 's'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'falso', 'f', 'n', '0', 'nao', 'não', 'n'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
