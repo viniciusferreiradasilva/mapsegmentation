@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import numpy as np
 
 from preprocessing.file_loading import json_2_dataframe
 from preprocessing.file_loading import load_attribute
@@ -7,10 +8,17 @@ from algorithms.clustering import highest_attribute_value
 from algorithms.clustering import kmeans
 from algorithms.clustering import dbscan
 from algorithms.clustering import agglomerative_clustering
-from analysis.metrics import silhouette_coefficient
-from analysis.metrics import silhouette_sample
+from algorithms.embedding import embedding_by_category_probability
+from algorithms.recommender import nearest_district_for_all_categories
+from algorithms.recommender import nearest_district
 from collections import Counter
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import homogeneity_score
+from sklearn.metrics import completeness_score
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(description='Map segmentation tool.', formatter_class=argparse.RawTextHelpFormatter)
@@ -20,22 +28,23 @@ parser.add_argument('--input_file', required=True, type=str,
                     help='A string representing a .json input file path with latitude and longitude columns.')
 
 # Optional output_file dir argument.
-parser.add_argument('--output_dir', type=str, help='A string representing an output dir path to save the clustering map'
-                                                   'and the resulting network .ncol file.')
+parser.add_argument('--output_dir', type=str, help="A string representing an output dir path to save the clustering"
+                                                   " map, the resulting network .ncol file and the resulting embeddings"
+                    , required=True)
 
 # Required clustering algorithm argument.
 parser.add_argument('--clustering_algorithm', type=int, required=True,
                     help='An integer representing the clustering algorithm that will be used to segment the map:\n'
-                         '1 - Highest attribute. Args: attribute_name (str), threshold (float),\n'
-                         '2 - K-means. Args: n_clusters (int),\n'
-                         '3 - DBSCAN. Args eps (float), min_samples (int),\n'
-                         '4 - Agglomerative clustering. Args: n_clusters (int)\n')
+                         '0 - Highest attribute. Args: attribute_name (str), threshold (float),\n'
+                         '1 - K-means. Args: n_clusters (int),\n'
+                         '2 - DBSCAN. Args eps (float), min_samples (int),\n'
+                         '3 - Agglomerative clustering. Args: n_clusters (int)\n')
 
 # Required clustering algorithm argument.
-parser.add_argument('--args', required=False, action='append', default=[],
+parser.add_argument('--args', required=False, nargs='+', default=[],
                     help='List of arguments that will be passed to the clustering algorithm. Each clustering algorithm '
                          'has a certain number of parameters. You should pass them in the same order:\n'
-                         '--args ARG_1 --args ARG_2 ... --args ARG_N.')
+                         '--args ARG_1 ARG_2 ... ARG_N.')
 
 args = parser.parse_args()
 # Loading a json file for a pandas dataframe.
@@ -48,9 +57,12 @@ print("clustering...")
 clustering_algorithms = [highest_attribute_value, kmeans, dbscan, agglomerative_clustering]
 df = clustering_algorithms[args.clustering_algorithm](df, *args.args)
 
+# Removes na values.
+df = df.fillna({'categories': ''})
+
 # Groups the dataframe by the clustering id, generating a dataframe with two columns: one representing the cluster
 # id and the other representing the list of categories. This command returns a Pandas Series.
-districts = df.fillna({'categories': ''}).groupby(by='cluster_id', as_index=False)['categories']\
+districts = df.groupby(by='cluster_id', as_index=False)['categories']\
     .apply(lambda x: '{}'.format(','.join(x)))
 # Converting the pandas Series to DataFrame.
 districts = pd.DataFrame({'cluster_id': districts.index, 'categories': districts.values})
@@ -64,5 +76,42 @@ for index, row in districts.iterrows():
     counter = Counter(row[0].replace(' ', '').split(','))
     districts_categories_count[row[1]] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
 
-# Splits the original dataset into train and set with 0.2 of the rows as test set.
-df_train, df_test = train_test_split(df, test_size=0.2)
+# Calculates the embeddings of the districts.
+districts_embedding = embedding_by_category_probability(categories, districts_categories_count)
+
+# Splits the original dataset into training and test set.
+df_training, df_test = train_test_split(df, test_size=0.5)
+# Builds a list of dicts where one represents the categories and the number of appears of this category.
+
+training_categories_count = [None] * len(df_training)
+for index, row in enumerate(df_training['categories']):
+    counter = Counter(row.replace(' ', '').split(','))
+    training_categories_count[index] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
+
+# Builds a list of dicts where one represents the categories and the number of appears of this category.
+test_categories_count = [None] * len(df_test)
+for index, row in enumerate(df_test['categories']):
+    counter = Counter(row.replace(' ', '').split(','))
+    test_categories_count[index] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
+
+# Calculates the embeddings for the training and test.
+training_embedding = embedding_by_category_probability(categories, training_categories_count)
+test_embedding = embedding_by_category_probability(categories, test_categories_count)
+
+# Does the recommendation.
+predicted_districts = nearest_district_for_all_categories(df_training, df_test, categories, training_embedding, test_embedding)
+y_test = list(df_test['cluster_id'])
+y_predicted = predicted_districts
+# Calculates the classification metrics.
+print("accuracy_score:", accuracy_score(y_test, y_predicted))
+print("precision_score:", precision_score(y_test, y_predicted, average='weighted', labels=np.unique(y_predicted)))
+
+print("-" * 50)
+
+# Does the recommendation.
+predicted_districts = nearest_district(df_training, df_test, categories, training_embedding, test_embedding)
+y_test = list(df_test['cluster_id'])
+y_predicted = predicted_districts
+# Calculates the classification metrics.
+print("accuracy_score:", accuracy_score(y_test, y_predicted))
+print("precision_score:", precision_score(y_test, y_predicted, average='weighted', labels=np.unique(y_predicted)))

@@ -1,9 +1,12 @@
 #!/usr/bin/python
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import silhouette_samples
+from sklearn.metrics import average_precision_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import roc_auc_score
 
 """
-File containing metrics to analyse clustering algorithms outputs.
+File containing metrics to analyse clustering algorithms outputs and classifiers.
 """
 
 
@@ -37,3 +40,20 @@ def silhouette_sample(df):
     list of float representing the value of silhouette coefficient for sample in it's cluster.
     """
     return silhouette_samples(df[['latitude', 'longitude']].values, df['cluster_id'])
+
+
+def pertinence(y_test, y_score):
+    """Calculates the degree of pertinence of a venue in a district.
+
+    Parameters
+    ----------
+
+    y_test : the real class of the pattern.
+
+    y_score : the predicted class of the pattern.
+
+    Returns
+    -------
+    the area under roc curve for the classified data.
+    """
+    pass
