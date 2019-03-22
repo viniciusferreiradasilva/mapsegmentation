@@ -138,16 +138,10 @@ for index, config in enumerate(configs):
 plt.show()
 
 clustering_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
-        args.clustering_algorithm].__name__ + '.txt'
+        args.clustering_algorithm].__name__ + '.csv'
 print("saving clustering analysis into:", clustering_file)
 # Writing the embedding into a file.
 with open(clustering_file, 'w') as f:
     for index, silhouette in enumerate(silhouettes):
-        f.write(''.join(map(str, configs[index])) + ' ' + str(silhouette) + '\n')
-    f.write("-" * 50 + "\n")
-    max_index = int(np.where(silhouettes == np.amax(silhouettes))[0])
-    f.write("Max value: " + ' '.join(map(str, configs[max_index])) + " -> " + str(silhouettes[max_index]) + "\n")
-    min_index = int(np.where(silhouettes == np.amin(silhouettes))[0])
-    f.write("Min value: " + ' '.join(map(str, configs[min_index])) + " -> " + str(silhouettes[min_index]) + "\n")
-    f.write("Avg value: " + str(np.average(silhouettes)) + "\n")
+        f.write(','.join(map(str, configs[index])) + ',' + str(silhouette) + '\n')
 f.close()

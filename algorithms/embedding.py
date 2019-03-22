@@ -27,7 +27,7 @@ def embedding_by_category_probability(categories, districts_categories_count):
         embedding_values = np.divide(list(district.values()), np.sum(list(district.values())))
         # Merges an empty district embedding to the existent district embedding to give zero value to non-present
         # categories.
-        district_embedding = np.asarray(list({**dict(zip(categories.values(), np.zeros(len(categories)))),
+        district_embedding = np.asarray(list({**dict(zip(categories, np.zeros(len(categories)))),
                                               **dict(zip(district.keys(), embedding_values))}.values()))
         # Add the district embedding to the embedding dictionary.
         districts_categories_embedding[district_id] = district_embedding

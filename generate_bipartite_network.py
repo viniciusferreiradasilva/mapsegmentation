@@ -31,10 +31,10 @@ parser.add_argument('--output_dir', type=str, help="A string representing an out
 # Required clustering algorithm argument.
 parser.add_argument('--clustering_algorithm', type=int, required=True,
                     help='An integer representing the clustering algorithm that will be used to segment the map:\n'
-                         '1 - Highest attribute. Args: attribute_name (str), threshold (float),\n'
-                         '2 - K-means. Args: n_clusters (int),\n'
-                         '3 - DBSCAN. Args eps (float), min_samples (int),\n'
-                         '4 - Agglomerative clustering. Args: n_clusters (int)\n')
+                         '0 - Highest attribute. Args: attribute_name (str), threshold (float),\n'
+                         '1 - K-means. Args: n_clusters (int),\n'
+                         '2 - DBSCAN. Args eps (float), min_samples (int),\n'
+                         '3 - Agglomerative clustering. Args: n_clusters (int)\n')
 
 # Required clustering algorithm argument.
 parser.add_argument('--args', required=False, nargs='+', default=[],
