@@ -98,8 +98,8 @@ for config_index, config in enumerate(configs):
     districts_categories_count = [None] * len(districts)
 
     for index, row in districts.iterrows():
-        counter = Counter(row[0].replace(' ', '').split(','))
-        districts_categories_count[row[1]] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
+        counter = Counter(row['categories'].replace(' ', '').split(','))
+        districts_categories_count[row['cluster_id']] = dict(zip([categories[x] for x in counter.keys()], counter.values()))
     # Calculates the embeddings of the districts.
     districts_embedding = embedding_by_category_probability(categories.values(), districts_categories_count)
 
