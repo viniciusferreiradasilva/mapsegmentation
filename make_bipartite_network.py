@@ -95,7 +95,7 @@ network_output_file = args.output_dir + args.input_file.split('/')[-1].split('.'
 print("saving network district - category into:", network_output_file)
 g.write_ncol(f=network_output_file, names='', weights='weight')
 
-districts_embedding = embedding_by_category_probability(categories, districts_categories_count)
+districts_embedding = embedding_by_category_probability(categories.values(), districts_categories_count)
 embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
         args.clustering_algorithm].__name__ + '_' + str(number_of_districts) + '_' + str(number_of_categories) +\
                  '_district_emb.txt'
@@ -106,7 +106,7 @@ with open(embedding_file, 'w') as f:
         f.write(' '.join(["{0:.10f}".format(x) for x in list(district_embedding)]) + "\n")
 f.close()
 
-districts_embedding = np.transpose(embedding_by_category_probability(categories, districts_categories_count))
+districts_embedding = np.transpose(embedding_by_category_probability(categories.values(), districts_categories_count))
 embedding_file = args.output_dir + args.input_file.split('/')[-1].split('.')[0] + '_' + clustering_algorithms[
         args.clustering_algorithm].__name__ + '_' + str(number_of_districts) + '_' + str(number_of_categories) +\
                  '_categories_emb.txt'
