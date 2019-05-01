@@ -63,11 +63,12 @@ X = df[['latitude', 'longitude']].values
 plot_map = str2bool(args.map)
 # Var that save all silhouettes.
 silhouettes = np.empty(len(configs))
-
+ns_clusters = np.empty(len(configs))
 for index, config in enumerate(configs):
+    print('config:', config)
     # Clustering
     cluster_labels = np.array(clustering_algorithms[args.clustering_algorithm](df, *config)['cluster_id'])
-    n_clusters = len(Counter(cluster_labels).keys())
+    ns_clusters[index] = len(Counter(cluster_labels).keys())
 
     # The silhouette_score gives the average value for all the samples.
     # This gives a perspective into the density and separation of the formed
@@ -84,5 +85,5 @@ print("saving clustering analysis into:", clustering_file)
 # Writing the embedding into a file.
 with open(clustering_file, 'w') as f:
     for index, silhouette in enumerate(silhouettes):
-        f.write(','.join(map(str, configs[index])) + ',' + str(silhouette) + '\n')
+        f.write(','.join(map(str, configs[index])) + ',' + str(silhouette) + ',' + str(ns_clusters[index]) + '\n')
 f.close()
