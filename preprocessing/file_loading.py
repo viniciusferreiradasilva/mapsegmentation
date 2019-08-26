@@ -49,6 +49,23 @@ def json_2_dataframe(filename):
     return pd.read_json(path_or_buf=filename, lines='true')
 
 
+def dataframe_to_json(df, filename):
+    """Converts a pandas dataframe to a json file.
+
+    Parameters
+    ----------
+    df : a pandas dataframe.
+
+    filename : a str representing the output json file path.
+
+    Returns
+    -------
+    """
+    f = open(filename, 'w')
+    f.write(df.to_json(orient='records')[1:-1].replace('},{', '}\n{'))
+    f.close()
+
+
 def load_attribute(df, filename, id_attribute, attribute, default_value=0):
     """Loads a column value present in a json file to a pandas dataframe as a column.
 
